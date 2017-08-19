@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS拖拽</title>
+    <style>
+        /* public style start */
+        * { margin: 0; padding: 0; }
+        body, textarea, select, input, button {font-size: 12px;color: white;font-family: Arial, Helvetica, sans-serif;-webkit-text-size-adjust: none;}
+        .fl-l { float: left }
+        .fl-r { float: right }
+        .clearfix:after {visibility:hidden;display:block;font-size:0;content:'.';clear:both;height:0;}
+        .clearfix {*zoom:1;}
+        /* public style end */
+
+        /* dialog window style start */
+
+        /* dialog window main */
+        #dialog {
+            height: 200px;
+            width: 400px;
+            background-color: #EAF6DB;
+            border: 1px solid lightslategray;
+            position: absolute;
+            top: 200px;
+            left: 400px;
+        }
+
+        /* dialog window title section */
+        .dialog-title {
+            height: 40px;
+            line-height: 40px;
+            background-color: #3a3333;
+            cursor: move;
+        }
+
+        /* dialog window title inner detail */
+        .login, .close {
+            display: inline-block;
+            margin: 0 15px;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            // 获取DOM元素
+            var oDialog_title = document.getElementById( 'dialog-title' );  // 允许点击鼠标获取拖拽事件区域
+            var oDialog = oDialog_title.parentNode; // 登录窗口
+
+            // 初始化鼠标默认位置
+	        var iDisX = 0;
+	        var iDisY = 0;
+
+            // 为获取到的DOM元素添加鼠标按下事件 `onmousedown`
+	        oDialog_title.onmousedown = function ( ent ) {
+                // 保存鼠标事件对象
+            	var oEvent = ent || event;
+
+            	// 距离计算鼠标位于弹出框内的位置
+	            iDisX = oEvent.clientX - oDialog.offsetLeft;    // 鼠标X轴位置 - 弹出框X外左边距
+	            iDisY = oEvent.clientY - oDialog.offsetTop;     // 鼠标Y轴位置 - 弹出框Y外上边距
+
+                // 点击弹出框后拖动鼠标, 移动弹出框
+	            document.onmousemove = function ( ent ) {
+		            // 保存鼠标事件对象
+		            var oEvent = ent || event;
+
+		            // 当鼠标移动时改变弹出框的位置
+		            oDialog.style.left = oEvent.clientX - iDisX + 'px';
+		            oDialog.style.top = oEvent.clientY - iDisY + 'px';
+	            };
+
+	            // 当点击鼠标拖动弹出框, 抬起鼠标时
+	            document.onmouseup = function () {
+	            	// 清除弹出框的移动事件及本身
+		            document.onmousemove = null;
+		            document.onmouseup = null;
+	            };
+
+	            // 阻止默认事件, 如果不加这个阻止默认事件, 在firefox下会有一个获取焦点的光标一直在闪动, 在3.0及以下会出现拖动出现重影的情况
+                return false;
+            };
+        };
+    </script>
+</head>
+<body>
+    <!-- 假设这个DIV就是一个登录窗口 -->
+    <div id="dialog">
+        <div id="dialog-title" class="dialog-title clearfix">
+            <span class="fl-l login">登录</span>
+            <span class="fl-r close">X</span>
+        </div>
+    </div>
+</body>
+</html>
