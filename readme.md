@@ -321,6 +321,8 @@ oDialog.style.top = iCurrentDialogDisTop + 'px';
 
 ## JavaScript实现登录窗口的拖拽优化填坑后具体效果
 
+![JavaScript实现登录窗口的拖拽优化填坑后具体效果](http://oss6u9q3t.bkt.clouddn.com//image/javascript-drafting/163.music.login.dialog.10.gif)
+
 > 文章写到这里可能也有不伙伴说了, 滚动一小段距离也就是出现滚动条时, 再拖拽还是会出现 `登录窗口` 脱离可以区域的情况!
 
 > 对于小伙伴提出的问题至少有二种解决方案！
@@ -508,7 +510,7 @@ oDialog.style.top = iCurrentDialogDisTop + 'px';
         }
     </script>
 </head>
-<body>
+<body style="height: 4000px;">
     <!-- 假设这个DIV就是一个登录窗口 -->
     <div id="dialog">
         <div id="dialog-title" class="dialog-title clearfix">
@@ -516,16 +518,14 @@ oDialog.style.top = iCurrentDialogDisTop + 'px';
             <span class="fl-r close">X</span>
         </div>
     </div>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </body>
 </html>
 ```
 
+## JavaScript实现登录窗口的拖拽优化填坑 - 滚动距离计算效果
 
+![JavaScript实现登录窗口的拖拽优化填坑 - 滚动距离计算效果](http://oss6u9q3t.bkt.clouddn.com//image/javascript-drafting/163.music.login.dialog.11.gif)
 
-
-
-![JavaScript实现登录窗口的拖拽优化填坑后具体效果](http://oss6u9q3t.bkt.clouddn.com//image/javascript-drafting/163.music.login.dialog.10.gif)
 
 > 以上就是实现与 `网易云音乐` Web站 `登录窗口`  拖拽效果一致的具体过程
 
