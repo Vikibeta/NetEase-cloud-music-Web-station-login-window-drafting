@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS拖拽扩展-计算滚动距离</title>
+    <style>
+        /* public style start */
+        * { margin: 0; padding: 0; }
+        body, textarea, select, input, button {font-size: 12px;color: white;font-family: Arial, Helvetica, sans-serif;-webkit-text-size-adjust: none;}
+        .fl-l { float: left }
+        .fl-r { float: right }
+        .clearfix:after {visibility:hidden;display:block;font-size:0;content:'.';clear:both;height:0;}
+        .clearfix {*zoom:1;}
+        /* public style end */
+
+        /* dialog window style start */
+
+        /* dialog window main */
+        #dialog {
+            height: 200px;
+            width: 400px;
+            background-color: #EAF6DB;
+            border: 1px solid lightslategray;
+            position: absolute;
+        }
+
+        /* dialog window title section */
+        .dialog-title {
+            height: 40px;
+            line-height: 40px;
+            background-color: #3a3333;
+            cursor: move;
+        }
+
+        /* dialog window title inner detail */
+        .login, .close {
+            display: inline-block;
+            margin: 0 15px;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            // 获取DOM元素
+            var oDialog_title = document.getElementById( 'dialog-title' );  // 允许点击鼠标获取拖拽事件区域
+            var oDialog = oDialog_title.parentNode; // 登录窗口
+
+            // 初始化 `登录窗口` 默认居中位置 start
+
+	        // 获取当前文档可视区宽度和高度
+	        var iScreenHeight = document.documentElement.clientHeight;  // 可视区高度
+	        var iScreenWidth = document.documentElement.clientWidth;  // 可视区宽度
+
+	        // 获取当前 `登录窗口` 宽度和高度
+	        var iCurrentDialogHeight = oDialog.offsetHeight;    // 窗口高度
+	        var iCurrentDialogWidth = oDialog.offsetWidth;    // 窗口宽度
+
+            // 计算保存初始化后 `登录窗口` 的默认垂直水平居中位置
+            var iCurrentDialogTop = parseInt( ( iScreenHeight / 2 ) - ( iCurrentDialogHeight / 2 ) );
+            var iCurrentDialogLeft = parseInt( ( iScreenWidth / 2 ) - ( iCurrentDialogWidth / 2 ) );
+
+            // 修改 `登录窗口` 默认位置
+	        oDialog.style.top = iCurrentDialogTop + 'px';
+	        oDialog.style.left = iCurrentDialogLeft + 'px';
+
+	        // 初始化 `登录窗口` 默认居中位置 end
+
+            console.log( oDialog.offsetTop );
+
+            // 初始化当前滚动条滚动距离
+	        var iCurrentScrollTop = 0;
+	        // 初始化当前 `登录窗口` 应该滚动距离
+            var iRealTimeTop = 0;
+
+	        // 计算当前滚动条滚动距离
+	        window.onscroll = function () {
+		        // 兼容写法获取当前滚动条滚动距离
+		        iCurrentScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+
+		        // 直接这么改变top值, 会出现抖动, 这样感觉太生硬, 体验也不太好
+                // oDialog.style.top = iCurrentDialogTop + iCurrentScrollTop + 'px';
+
+                // 当前 `登录窗口` 应该实时滚动距离
+		        iRealTimeTop = iCurrentDialogTop + iCurrentScrollTop;
+
+                // 为了防止出现抖动, 这样感觉也不太生硬, 优化体验可以采用缓冲运动方式
+		        fnBufferMotion( oDialog, iRealTimeTop );
+	        };
+
+            // 初始化鼠标默认位置
+	        var iDisX = 0;
+	        var iDisY = 0;
+
+            // 为获取到的DOM元素添加鼠标按下事件 `onmousedown`
+	        oDialog_title.onmousedown = function ( ent ) {
+                // 保存鼠标事件对象
+            	var oEvent = ent || event;
+
+            	// 距离计算鼠标位于弹出框内的位置
+	            iDisX = oEvent.clientX - oDialog.offsetLeft;    // 鼠标X轴位置 - 弹出框X外左边距
+	            iDisY = oEvent.clientY + iCurrentDialogTop - oDialog.offsetTop;     // 鼠标Y轴位置 + 当前滚动条滚动距离 - 弹出框Y外上边距
+
+                console.log( iCurrentDialogTop );
+
+                // 点击弹出框后拖动鼠标, 移动弹出框
+	            document.onmousemove = function ( ent ) {
+		            // 保存鼠标事件对象
+		            var oEvent = ent || event;
+
+                    // 优化填坑 - 禁止 `登录窗口` 拖拽出文档可视区域, 保存 `登录窗口` 在文档中具体位置
+                    var iCurrentDialogDisLift = oEvent.clientX - iDisX; // `登录窗口` 当前位置于X轴具体值
+                    var iCurrentDialogDisTop = oEvent.clientY + iCurrentDialogTop - iDisY;  // `登录窗口` 当前位置于Y轴具体值
+
+                    // 检测当前 `登录窗口` X轴是否位于文档可视区域最左侧或最右侧
+                    if ( iCurrentDialogDisLift < 0 ) {
+                        iCurrentDialogDisLift = 0;
+                    } else if ( iCurrentDialogDisLift > document.documentElement.clientWidth - oDialog.offsetWidth  ) {
+                        // 当前文档X轴可视区域大小包括左右边框线宽度 - `登录窗口` X轴区域大小包括左右边框线宽度
+                        iCurrentDialogDisLift = document.documentElement.clientWidth - oDialog.offsetWidth;
+                    }
+
+                    // 检测当前 `登录窗口` Y轴是否位于文档可视区域 + 当前滚动条滚动距离 的最上端或最下端
+                    if ( iCurrentDialogDisTop < iCurrentScrollTop ) {
+                        iCurrentDialogDisTop = iCurrentScrollTop;
+                    } else if ( iCurrentDialogDisTop > document.documentElement.clientHeight + iCurrentScrollTop - oDialog.offsetHeight ) {
+                        // 当前文档Y轴可视区域大小包括上下边框线宽度 + 当前滚动条滚动距离 - `登录窗口` Y轴区域大小包括上下边框线宽度
+                        iCurrentDialogDisTop = document.documentElement.clientHeight + iCurrentScrollTop - oDialog.offsetHeight;
+                    }
+
+                    // 当鼠标移动时改变弹出框的位置
+                    oDialog.style.left = iCurrentDialogDisLift + 'px';
+                    oDialog.style.top = iCurrentDialogDisTop + 'px';
+	            };
+
+	            // 当点击鼠标拖动弹出框, 抬起鼠标时
+	            document.onmouseup = function () {
+	            	// 清除弹出框的移动事件及本身
+		            document.onmousemove = null;
+		            document.onmouseup = null;
+	            };
+
+	            // 阻止默认事件, 如果不加这个阻止默认事件, 在firefox下会有一个获取焦点的光标一直在闪动, 在3.0及以下会出现拖动出现重影的情况
+                return false;
+            };
+        };
+
+        // 初始化定义器
+        var oTimer = null;
+        /**
+         * 缓冲运动
+         * @param oElement   运动对象
+         * @param iTarget   目标位置或者说目标点
+         */
+        function fnBufferMotion( oElement, iTarget ) {
+        	// 首先就是清除定时器, 因为当下面开启定时器之前禁止存在还有再执行的定时器, 要不然会存在问题, 你可以验证一下
+            clearInterval( oTimer );
+            // 开启定时器
+	        oTimer = setInterval( function () {
+
+	        	// 缓冲运动速度
+                var iSpeed = ( iTarget - oElement.offsetTop ) / 8;
+
+                // 缓冲运动速度取整
+		        iSpeed = iSpeed > 0 ? Math.ceil( iSpeed ) : Math.floor( iSpeed );
+
+		        // 判断是否缓冲运动到目标点, 是就关闭定时器, 否则就接着运动呗
+		        if ( iTarget == oElement.offsetTop ) {
+                    clearInterval( oTimer );    // 关闭定时器
+                } else {
+                    oElement.style.top = oElement.offsetTop + iSpeed + 'px';    // 缓冲运动改变 `登录窗口` 的上外边距
+                }
+	        }, 30 );
+        }
+    </script>
+</head>
+<body>
+    <!-- 假设这个DIV就是一个登录窗口 -->
+    <div id="dialog">
+        <div id="dialog-title" class="dialog-title clearfix">
+            <span class="fl-l login">登录</span>
+            <span class="fl-r close">X</span>
+        </div>
+    </div>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>
